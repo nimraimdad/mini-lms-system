@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Detail | Mini LMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --dark: #1a1a2e;
+      --light: #ffffff;
+      --glass: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    }
+
+    [data-theme="dark"] {
+      --light: #0f0f23;
+      --glass: rgba(0, 0, 0, 0.2);
+    }
+
+    body {
+      background: #e3e7f8;
+      ;
+      color: #333;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .navbar {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+    }
+
+    .course-header {
+      background: var(--primary);
+      color: white;
+      padding: 120px 0;
+    }
+
+    .video-container {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: #000;
+    }
+
+    .video-locked {
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lock-icon {
+      font-size: 5rem;
+      opacity: 0.8;
+    }
+
+    .btn-enroll {
+      background: var(--primary);
+      border: none;
+      border-radius: 50px;
+      margin-left: 170px;
+      padding: 12px 30px;
+      font-weight: 600;
+      transition: all 0.3s;
+
+    }
+
+    .btn-enroll:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(78, 103, 218, 0.4);
+    }
+
+    .module-item {
+      background: linear-gradient(#cf69dc, #5046e2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .info-card {
+      background: var(--primary);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: white;
+    }
+
+    .progress-slider {
+      accent-color: #4136d5;
+      ;
+    }
+
+    footer {
+      background: var(--dark);
+      color: #aaa;
+      padding: 2rem 0;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-expand-lg fixed-top py-3">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3 text-white" href="index.html">Mini LMS</a>
+      <div class="ms-auto d-flex align-items-center gap-3">
+
+        <div id="authLinks"></div>
+      </div>
+    </div>
+  </nav>
+
+
+  <section class="course-header text-center">
+    <div class="container">
+      <h1 class="display-3 fw-bold mb-3" id="title">Loading...</h1>
+      <p class="lead mb-0" id="tagline"></p>
+    </div>
+  </section>
+
+
+  <div class="container my-5 pt-5">
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div id="videoSection" class="video-container mb-4"></div>
+        <div id="progressSection" class="mb-4 d-none">
+          <label class="form-label fw-semibold">Your Progress:</label>
+          <div class="d-flex align-items-center">
+            <input type="range" class="form-range progress-slider me-3" id="progressSlider" min="0" max="100" value="0">
+            <span id="progressValue" class="fw-bold me-3">0%</span>
+            <button id="saveProgress" class="btn  btn-primary btn-sm">Save Progress</button>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-3">About the Course</h3>
+        <p class="text-muted lh-lg" id="about"></p>
+        <h4 class="mt-5  fw-semibold">Modules</h4>
+        <div id="modules"></div>
+        <button class="btn btn-enroll w-50 " id="enrollBtn">Enroll Now</button>
+      </div>
+      <div class="col-lg-4">
+        <div class="info-card p-4">
+          <h5 class="fw-bold mb-4">Course Info</h5>
+          <p><strong>Instructor:</strong> <span id="instructor"></span></p>
+          <p><strong>Duration:</strong> <span id="duration"></span></p>
+          <p><strong>Level:</strong> <span id="level"></span></p>
+          <p><strong>Language:</strong> <span id="lang"></span></p>
+          <hr class="my-3">
+          <h6 class="fw-bold">What You'll Get</h6>
+          <ul class="list-unstyled" id="benefits"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <footer>
+    <p class="mb-0">© 2025 Mini LMS | Crafted with Love</p>
+  </footer>
+
+  <script>
+
+
+    const courses = [
+      {
+        slug: "web-development",
+        title: "Web Development Mastery",
+        tagline: "Create beautiful websites",
+        about: "Learn to build responsive and modern websites using HTML, CSS, and JavaScript from scratch.",
+        modules: ["HTML Basics", "CSS Styling", "JavaScript Interactivity", "Final Project"],
+        instructor: "John Doe",
+        duration: "4 weeks",
+        level: "Beginner",
+        lang: "English",
+        benefits: ["Certificate", "Real Projects", "24/7 Support"],
+        video: "https://www.youtube.com/embed/MkcfB7S4fq0?si=lnMgflcf2vjpNDRX",
+        price: "49"
+      },
+      {
+        slug: "python",
+        title: "Python: Zero to Hero",
+        tagline: "Master Python Programming",
+        about: "A complete Python journey covering syntax, OOP, and real-world projects.",
+        modules: ["Python Basics", "OOP Concepts", "Data Handling", "Final Project"],
+        instructor: "Sarah Lee",
+        duration: "5 weeks",
+        level: "Beginner",
+        lang: "English",
+        benefits: ["Exercises", "Lifetime Access", "Completion Certificate"],
+        video: "https://www.youtube.com/embed/kqtD5dpn9C8",
+        price: "59"
+      },
+      {
+        slug: "javascript",
+        title: "JavaScript Essentials",
+        tagline: "Power of JS",
+        about: "Master ES6, DOM manipulation, and asynchronous JavaScript.",
+        modules: ["JS Basics", "DOM", "Async & Promises"],
+        instructor: "Mike Chen",
+        duration: "3 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Quizzes", "Code Examples", "Practice Tasks"],
+        video: "https://www.youtube.com/embed/ajdRvxDWH4w?si=GOYcGVy8GO8AcgGo",
+        price: "39"
+      },
+      {
+        slug: "react",
+        title: "React Masterclass",
+        tagline: "Build SPAs",
+        about: "Master React fundamentals, Hooks, and Redux for dynamic web apps.",
+        modules: ["Hooks", "Router", "State Management", "Redux"],
+        instructor: "Alex Kim",
+        duration: "6 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Portfolio Project", "Deployment Guide"],
+        video: "https://www.youtube.com/embed/LuNPCSNr-nE?si=KB3gA3ump98UXnFp",
+        price: "79"
+      },
+      {
+        slug: "nodejs",
+        title: "Node.js & Express",
+        tagline: "Backend Power",
+        about: "Learn to create RESTful APIs using Node.js, Express, and MongoDB.",
+        modules: ["Node Basics", "Express API", "MongoDB Integration", "Authentication"],
+        instructor: "Raj Patel",
+        duration: "5 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["API Project", "Deployment Support"],
+        video: "https://www.youtube.com/embed/TlB_eWDSMt4?si=tfgZdYRBy12u3nll",
+        price: "69"
+      },
+      {
+        slug: "ui-ux",
+        title: "UI/UX Design Fundamentals",
+        tagline: "Design Like a Pro",
+        about: "Learn Figma, wireframing, and user interface design principles.",
+        modules: ["Figma", "Wireframe", "Prototype", "User Testing"],
+        instructor: "Lisa Wong",
+        duration: "4 weeks",
+        level: "Beginner",
+        lang: "English",
+        benefits: ["Templates", "Feedback Sessions"],
+        video: "https://www.youtube.com/embed/-_lK35Wczfc?si=AK_RRUrZd0lJ-6Dq",
+        price: "55"
+      },
+      {
+        slug: "app-development",
+        title: "App Development Bootcamp",
+        tagline: "Build Android & iOS Apps",
+        about: "Learn Android and iOS app development using modern frameworks like Flutter and React Native.",
+        modules: ["App Design", "Frontend UI", "APIs & Databases", "Publishing"],
+        instructor: "Mariam Rashad",
+        duration: "7 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Source Code", "Live Mentorship", "Certificate"],
+        video: "https://www.youtube.com/embed/yye7rSsiV6k?si=I5tH6nWCxa_WH824",
+        price: "85"
+      },
+      {
+        slug: "cyber-security",
+        title: "Cyber Security Basics",
+        tagline: "Protect Systems & Data",
+        about: "Understand how to secure networks, data, and applications from threats.",
+        modules: ["Security Fundamentals", "Network Attacks", "Encryption", "Case Study"],
+        instructor: "Ethan Brown",
+        duration: "6 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Security Labs", "Certification"],
+        video: "https://www.youtube.com/embed/OwuX-dRylhU?si=tQ5f61nEZDXCe0Ar",
+        price: "75"
+      },
+      {
+        slug: "data-science",
+        title: "Data Science Bootcamp",
+        tagline: "Analyze and Visualize Data",
+        about: "Learn Python for data analysis, visualization, and machine learning.",
+        modules: ["NumPy", "Pandas", "Matplotlib", "ML Basics"],
+        instructor: "Olivia Davis",
+        duration: "8 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Datasets", "Projects"],
+        video: "https://www.youtube.com/embed/gDZ6czwuQ18?si=b7D2_TCijQdU4fV4",
+        price: "89"
+      },
+      {
+        slug: "machine-learning",
+        title: "Machine Learning Pro",
+        tagline: "Train Smart Models",
+        about: "Learn supervised and unsupervised learning using Python.",
+        modules: ["Regression", "Classification", "Clustering", "Neural Networks"],
+        instructor: "James Parker",
+        duration: "7 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Code Templates", "Model Training Projects"],
+        video: "https://www.youtube.com/embed/i_LwzRVP7bg?si=gwc_Fipsz2CypGDg",
+        price: "95"
+      },
+      {
+        slug: "cloud-computing",
+        title: "Cloud Computing Essentials",
+        tagline: "AWS, Azure & Google Cloud",
+        about: "Master cloud platforms, storage, and deployment strategies.",
+        modules: ["AWS", "Azure", "Google Cloud", "DevOps Integration"],
+        instructor: "Sophia Turner",
+        duration: "6 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Labs", "Hands-on Projects"],
+        video: "https://www.youtube.com/embed/70oYrSnRgoI?si=sM73e4o2HGrsXPd5",
+        price: "79"
+      },
+      {
+        slug: "database-management",
+        title: "Database Management",
+        tagline: "SQL, NoSQL & MongoDB",
+        about: "Learn how to design and manage databases efficiently.",
+        modules: ["SQL Basics", "NoSQL", "MongoDB", "Optimization"],
+        instructor: "Tom White",
+        duration: "5 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Practice DBs", "Assignments"],
+        video: "https://www.youtube.com/embed/-8bYtApJNos?si=FOBWYXerznfbsLf_",
+        price: "59"
+      },
+      {
+        slug: "ai",
+        title: "Artificial Intelligence",
+        tagline: "Build Smart Systems",
+        about: "Explore AI algorithms and practical implementations.",
+        modules: ["AI Basics", "Search", "Knowledge Representation", "NLP"],
+        instructor: "Emily Clark",
+        duration: "7 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Projects", "AI Tools"],
+        video: "https://www.youtube.com/embed/t9MJ1gxcJ4w?si=3LmU7na3MpdBakAc",
+        price: "99"
+      },
+      {
+        slug: "devops",
+        title: "DevOps Essentials",
+        tagline: "CI/CD & Automation",
+        about: "Learn DevOps tools like Docker, Jenkins, and Kubernetes.",
+        modules: ["Git & CI/CD", "Docker", "Kubernetes", "Automation"],
+        instructor: "Robert Green",
+        duration: "6 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Practical Labs", "Pipeline Setup"],
+        video: "https://www.youtube.com/embed/lENeZmjD2zc?si=cX4i23XcK1w3lHXQ",
+        price: "85"
+      },
+      {
+        slug: "blockchain",
+        title: "Blockchain Development",
+        tagline: "Build Decentralized Apps",
+        about: "Understand blockchain concepts and smart contracts using Solidity.",
+        modules: ["Blockchain Basics", "Smart Contracts", "Ethereum", "DApp Development"],
+        instructor: "Nina Verma",
+        duration: "6 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Project", "Certificate"],
+        video: "https://www.youtube.com/embed/uULy2rc6YDc?si=JFk_3egZAu05jUsv", price: "95",
+      },
+      {
+        slug: "ethical-hacking",
+        title: "Ethical Hacking",
+        tagline: "Learn Penetration Testing",
+        about: "Master tools like Nmap, Metasploit, and Wireshark for ethical hacking.",
+        modules: ["Footprinting", "Scanning", "Exploitation", "Reporting"],
+        instructor: "Chris Johnson",
+        duration: "6 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Labs", "Practical Tasks"],
+        video: "https://www.youtube.com/embed/vK4Mno4QYqk?si=DiE0Ln0mkqd4VFRP",
+        price: "70"
+      },
+      {
+        slug: "graphic-design",
+        title: "Graphic Design",
+        tagline: "Master Photoshop & Illustrator",
+        about: "Create amazing designs using Adobe Creative Suite.",
+        modules: ["Photoshop", "Illustrator", "Branding", "Portfolio"],
+        instructor: "Maria Gomez",
+        duration: "4 weeks",
+        level: "Beginner",
+        lang: "English",
+        benefits: ["Templates", "Project Files"],
+        video: "https://www.youtube.com/embed/e_dv7GBHka8?si=qdhaocikra1HFuWZ",
+        price: "50"
+      },
+      {
+        slug: "seo",
+        title: "SEO Optimization",
+        tagline: "Boost Website Rankings",
+        about: "Learn SEO strategies, keyword research, and on-page optimization.",
+        modules: ["SEO Basics", "Keywords", "On-Page", "Off-Page"],
+        instructor: "Ben Carter",
+        duration: "3 weeks",
+        level: "Beginner",
+        lang: "English",
+        benefits: ["Case Studies", "Checklists"],
+        video: "https://www.youtube.com/embed/O8tKWYKG4jA?si=UdekTTU6jKaLPTdX"
+      },
+      {
+        slug: "flutter",
+        title: "Flutter App Development",
+        tagline: "Cross-Platform Apps",
+        about: "Build Android & iOS apps using Flutter & Dart.",
+        modules: ["Dart", "UI Widgets", "Firebase", "Publishing"],
+        instructor: "Daniel Roy",
+        duration: "6 weeks",
+        level: "Intermediate",
+        lang: "English",
+        benefits: ["Full App Project", "Source Code"],
+        video: "https://www.youtube.com/embed/2lO0EpHP5Zg?si=INuTexwWlz7MsD5a",
+        price: "75"
+      },
+      {
+        slug: "game-dev",
+        title: "Game Development",
+        tagline: "Create 2D & 3D Games",
+        about: "Learn Unity and Unreal Engine to build interactive games.",
+        modules: ["Unity Basics", "C# Scripting", "Physics", "Publishing"],
+        instructor: "Kevin Brooks",
+        duration: "8 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["Assets", "Community Access"],
+        video: "https://www.youtube.com/embed/qPxvmrtTQ_4?si=Sz2_208WWX3UTAM4",
+        price: "99"
+      },
+      {
+        slug: "ar-vr",
+        title: "AR & VR Development",
+        tagline: "Create Immersive Experiences",
+        about: "Learn to design and build AR/VR apps for different platforms.",
+        modules: ["3D Basics", "ARCore", "VR with Unity", "Deployment"],
+        instructor: "Anna Rivera",
+        duration: "7 weeks",
+        level: "Advanced",
+        lang: "English",
+        benefits: ["3D Models", "AR Demos"],
+        video: "https://www.youtube.com/embed/Kw4G7DsNtP4?si=ZBFtN-PrKBUp1ztN",
+        price: "89"
+      }
+    ];
+
+
+
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('course') || 'web-development';
+    const course = courses.find(c => c.slug === slug) || courses[0];
+
+    const enrolled = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+    const isEnrolled = enrolled.includes(slug);
+    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+    // FILL CONTENT
+    document.getElementById('title').textContent = course.title;
+    document.getElementById('tagline').textContent = course.tagline;
+    document.getElementById('about').textContent = course.about;
+    document.getElementById('instructor').textContent = course.instructor;
+    document.getElementById('duration').textContent = course.duration;
+    document.getElementById('level').textContent = course.level;
+    document.getElementById('lang').textContent = course.lang;
+
+    const modulesDiv = document.getElementById('modules');
+    course.modules.forEach((m, i) => {
+      modulesDiv.innerHTML += `<div class="module-item text-white"><strong>Module ${i + 1}:</strong> ${m}</div>`;
+    });
+
+    const benefitsDiv = document.getElementById('benefits');
+    course.benefits.forEach(b => {
+      benefitsDiv.innerHTML += `<li class="mb-2"><span class="text-dark me-2">Check</span> ${b}</li>`;
+    });
+
+    const videoSection = document.getElementById('videoSection');
+    const enrollBtn = document.getElementById('enrollBtn');
+    const progressSection = document.getElementById('progressSection');
+
+    if (isEnrolled && isLoggedIn) {
+      videoSection.innerHTML = `<iframe src="${course.video}" allowfullscreen class="w-100" style="height:400px;border-radius:20px;"></iframe>`;
+      progressSection.classList.remove('d-none');
+      enrollBtn.textContent = 'Enrolled Check';
+      enrollBtn.classList.add('btn-success');
+      enrollBtn.disabled = true;
+
+      const progressData = JSON.parse(localStorage.getItem('courseProgress') || '{}');
+      const currentProgress = progressData[slug] || 0;
+      document.getElementById('progressSlider').value = currentProgress;
+      document.getElementById('progressValue').textContent = currentProgress + '%';
+
+      document.getElementById('progressSlider').oninput = (e) => {
+        document.getElementById('progressValue').textContent = e.target.value + '%';
+      };
+
+      document.getElementById('saveProgress').onclick = () => {
+        const progress = parseInt(document.getElementById('progressSlider').value);
+        progressData[slug] = progress;
+        localStorage.setItem('courseProgress', JSON.stringify(progressData));
+        alert(`Progress saved: ${progress}% Success`);
+      };
+    } else {
+      videoSection.innerHTML = `
+        <div class="video-locked text-white">
+          <div class="text-center">
+            <div class="lock-icon mb-3">Lock</div>
+            <h4>Course Locked</h4>
+            <p class="lead">Enroll to unlock videos & materials</p>
+          </div>
+        </div>`;
+      enrollBtn.onclick = () => {
+        if (!isLoggedIn) {
+          alert('Please login first!');
+          location.href = 'login.html';
+        } else if (confirm(`Enroll for $${course.price}?`)) {
+          enrolled.push(slug);
+          localStorage.setItem('enrolledCourses', JSON.stringify(enrolled));
+          location.reload();
+        }
+      };
+    }
+
+
+    const authLinks = document.getElementById('authLinks');
+    if (isLoggedIn) {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      authLinks.innerHTML = `
+       
+        <a href="dashboard.html" class="btn btn-light btn-sm">Dashboard</a>
+        <a href="#" id="logout" class="btn btn-light  btn-sm">Logout</a>
+      `;
+      document.getElementById('logout').onclick = () => {
+        if (confirm('Logout?')) {
+          localStorage.removeItem('loggedIn'); localStorage.removeItem('user');
+          location.href = 'index.html';
+        }
+      };
+    } else {
+      authLinks.innerHTML = `
+        <a href="login.html" class="btn btn-outline-light btn-sm me-2">Login</a>
+        <a href="signup.html" class="btn btn-light text-primary">Sign Up</a>
+      `;
+    }
+
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      themeToggle.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    };
+  </script>
+</body>
+
+</html>

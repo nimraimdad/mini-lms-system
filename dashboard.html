@@ -1,0 +1,350 @@
+ml
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Mini LMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --dark: #1a1a2e;
+      --light: #eeeff8;
+      --glass: rgba(255, 255, 255, 0.1);
+      --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    }
+
+    [data-theme="dark"] {
+      --light: #0f0f23;
+      --glass: rgba(0, 0, 0, 0.2);
+    }
+
+    body {
+      background: var(--light);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .navbar {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      background: var(--primary);
+      color: white;
+      padding: 120px 0;
+      text-align: center;
+    }
+
+    .stat-card {
+      background: var(--primary);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .course-card {
+      background: var(--primary);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-bar {
+      background: var(--light);
+      border-radius: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #666;
+    }
+
+    .empty-state svg {
+      width: 100px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg fixed-top py-3">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3 text-white" href="index.html">Mini LMS</a>
+      <div class="ms-auto d-flex align-items-center gap-3">
+
+        <div id="authLinks"></div>
+      </div>
+    </div>
+  </nav>
+
+
+  <section class="hero">
+    <div class="container">
+      <h1 class="display-3 fw-bold mb-3">Welcome back, <span id="userName" class="text-warning">Learner</span>!</h1>
+      <p class="lead">Your learning journey awaits</p>
+    </div>
+  </section>
+
+
+  <div class="container my-5 pt-5">
+    <div class="row g-4 mb-5">
+      <div class="col-md-3" data-aos="fade-up">
+        <div class="stat-card text-center text-white">
+          <h3 class="display-6 fw-bold" id="totalEnrolled">0</h3>
+          <p class="mb-0 opacity-75">Enrolled</p>
+        </div>
+      </div>
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card text-center text-white">
+          <h3 class="display-6 fw-bold" id="completed">0</h3>
+          <p class="mb-0 opacity-75">Completed</p>
+        </div>
+      </div>
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card text-center text-white">
+          <h3 class="display-6 fw-bold" id="inProgress">0</h3>
+          <p class="mb-0 opacity-75">In Progress</p>
+        </div>
+      </div>
+      <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card text-center text-white">
+          <h3 class="display-6 fw-bold" id="certificates">0</h3>
+          <p class="mb-0 opacity-75">Certificates</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="fw-bold mb-4" data-aos="fade-up">Your Courses</h2>
+    <div id="enrolledContainer" data-aos="fade-up"></div>
+  </div>
+
+
+  <footer class="text-center py-4 text-white" style="background: var(--dark);">
+    <p class="mb-0">© 2025 Mini LMS | Crafted with Love</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+
+
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      alert('Login required for dashboard.');
+      location.href = 'login.html';
+    }
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('userName').textContent = user.name || 'Learner';
+
+
+    const courseDB = {
+      "web-development": {
+        title: "Web Development Mastery",
+        img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8d2ViJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "python": {
+        title: "Python: Zero to Hero",
+        img: "https://images.unsplash.com/photo-1649180556628-9ba704115795?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHl0aG9ufGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "javascript": {
+        title: "JavaScript Essentials",
+        img: "https://images.unsplash.com/photo-1628258334105-2a0b3d6efee1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fGphdmFzY3JpcHR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "react": {
+        title: "React Masterclass",
+        img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cmVhY3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "nodejs": {
+        title: "Node.js & Express",
+        img: "https://images.unsplash.com/photo-1619410283995-43d9134e7656?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bm9kZS5qc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "app-development": {
+        title: "Mobile App Development",
+        img: "https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YXBwJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "ui-ux": {
+        title: "UI/UX Design Fundamentals",
+        img: "https://plus.unsplash.com/premium_photo-1661589354357-f56ddf86a0b4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8dWklMjB1eHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "cyber-security": {
+        title: "Cyber Security Basics",
+        img: "https://plus.unsplash.com/premium_photo-1661764393655-1dbffee8c0ce?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y3liZXIlMjBzZWN1cml0eXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "data-science": {
+        title: "Data Science Bootcamp",
+        img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZGF0YSUyMHNjaWVuY2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "machine-learning": {
+        title: "Machine Learning Pro",
+        img: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bWFjaGluZSUyMGxlYXJuaW5nfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "cloud-computing": {
+        title: "Cloud Computing",
+        img: "https://images.unsplash.com/photo-1667984390527-850f63192709?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdWQlMjBjb21wdXRpbmd8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "database-management": {
+        title: "Database Management",
+        img: "https://plus.unsplash.com/premium_photo-1661877737564-3dfd7282efcb?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29kaW5nfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "ai": {
+        title: "Artificial Intelligence",
+        img: "https://plus.unsplash.com/premium_photo-1676637656166-cb7b3a43b81a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8QWl8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "devops": {
+        title: "DevOps Essentials",
+        img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGRldmVsb3BtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "blockchain": {
+        title: "Blockchain Development",
+        img: "https://images.unsplash.com/photo-1640161704729-cbe966a08476?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJsb2NrY2hhaW58ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "ethical-hacking": {
+        title: "Ethical Hacking",
+        img: "https://images.unsplash.com/photo-1602529710584-458a995c8785?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8aGFja3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "graphic-design": {
+        title: "Graphic Design",
+        img: "https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3JhcGhpYyUyMGRlc2lnbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "seo": {
+        title: "SEO Optimization",
+        img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHNlb3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "flutter": {
+        title: "Flutter App Development",
+        img: "https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bW9iaWxlJTIwYXBwfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "game-dev": {
+        title: "Game Development",
+        img: "https://plus.unsplash.com/premium_photo-1678565869434-c81195861939?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGV2ZWxvcGVyfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      },
+      "ar-vr": {
+        title: "AR & VR Development",
+        img: "https://plus.unsplash.com/premium_photo-1711664260545-76402e4df140?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YXIlMjB2cnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600",
+        progress: 0
+      }
+    };
+
+    const enrolled = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+    const progressData = JSON.parse(localStorage.getItem('courseProgress') || '{}');
+    const container = document.getElementById('enrolledContainer');
+
+    if (enrolled.length === 0) {
+      container.innerHTML = `
+      <div class="col-12 empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/></svg>
+        <h4>No courses yet</h4>
+        <p>Start by exploring our courses</p>
+        <a href="courses.html" class="btn btn-primary">Browse Courses</a>
+      </div>`;
+    } else {
+      const row = document.createElement('div');
+      row.className = 'row g-4';
+
+      enrolled.forEach((slug, i) => {
+        const c = courseDB[slug] || { title: slug, img: "https://picsum.photos/id/999/400/200", progress: 0 };
+        c.progress = progressData[slug] || 0;
+
+        const col = document.createElement('div');
+        col.className = 'col-lg-4 col-md-6';
+        col.setAttribute('data-aos', 'fade-up');
+        col.setAttribute('data-aos-delay', i * 100);
+
+        col.innerHTML = `
+        <div class="card course-card h-100 text-white p-3">
+          <img src="${c.img}" class="card-img-top rounded" style="height:150px;object-fit:cover;" loading="lazy" alt="${c.title}">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">${c.title}</h5>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-2">
+                <small>Progress</small>
+                <small class="fw-bold">${c.progress}%</small>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" style="width: ${c.progress}%"></div>
+              </div>
+            </div>
+            <a href="course-detail.html?course=${slug}" class="btn btn-outline-light w-100">Continue Learning</a>
+          </div>
+        </div>`;
+        row.appendChild(col);
+      });
+      container.appendChild(row);
+    }
+
+
+    const completed = enrolled.filter(slug => (progressData[slug] || 0) >= 100).length;
+    const inProgress = enrolled.filter(slug => (progressData[slug] || 0) > 0 && (progressData[slug] || 0) < 100).length;
+    document.getElementById('totalEnrolled').textContent = enrolled.length;
+    document.getElementById('completed').textContent = completed;
+    document.getElementById('inProgress').textContent = inProgress;
+    document.getElementById('certificates').textContent = completed;
+
+
+    const authLinks = document.getElementById('authLinks');
+    authLinks.innerHTML = `
+    <span class="text-white me-2">${user.name || 'User'}!</span>
+    <a href="dashboard.html" class="btn btn-light btn-sm">Dashboard</a>
+    <a href="#" id="logout" class="btn btn-light btn-sm">Logout</a>
+  `;
+    document.getElementById('logout').onclick = () => {
+      if (confirm('Logout?')) {
+        localStorage.removeItem('loggedIn');
+        localStorage.removeItem('user');
+        location.href = 'index.html';
+      }
+    };
+
+
+    const themeToggle = document.getElementById('themeToggle');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    themeToggle.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+
+    themeToggle.onclick = () => {
+      const currentlyDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', currentlyDark ? 'light' : 'dark');
+      themeToggle.textContent = currentlyDark ? 'Dark Mode' : 'Light Mode';
+    };
+  </script>
+</body>
